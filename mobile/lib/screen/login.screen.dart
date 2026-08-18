@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import '../services/api.service.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -10,100 +11,84 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _usuarioController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _recordarPassword = false;
+  bool _cargando = false;
 
-  void _iniciarSesion() {
-    if (_usuarioController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
-      Navigator.pushReplacementNamed(context, '/ventas');
+  void _iniciarSesion() async {
+    if (_usuarioController.text.isEmpty || _passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor completa todos los campos')),
+      );
+      return;
     }
+
+    setState(() => _cargando = true);
+
+    await ApiService.login(
+      _usuarioController.text.trim(),
+      _passwordController.text.trim(),
+    );
+
+    setState(() => _cargando = false);
+
+    if (!mounted) return;
+    Navigator.pushReplacementNamed(context, '/ventas');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 60.0),
-          child: Column(
-            crossAxisAlignment: CrossAlignment.center,
-            children: [
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                  side: const BorderSide(color: Colors.black12),
-                ),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 40.0),
-                  child: Column(
-                    children: [
-                      Text("Iniciar Sesión", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                      SizedBox(height: 10),
-                      Text("LOTEAPPMOVIL", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.green)),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 40),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text("Usuario", style: TextStyle(fontWeight: FontWeight.w600)),
-              ),
-              const SizedBox(height: 5),
-              TextField(
-                controller: _usuarioController,
-                decoration: InputDecoration(
-                  hintText: 'Usuario',
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text("Contraseña", style: TextStyle(fontWeight: FontWeight.w600)),
-              ),
-              const SizedBox(height: 5),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  hintText: 'Contraseña',
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Row(
+      backgroundColor: Colors.grey[100],
+      body: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 400),
+          padding: const EdgeInsets.all(30.0),
+          child: Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Checkbox(
-                    value: _recordarPassword,
-                    onChanged: (val) => setState(() => _recordarPassword = val!),
+                  const Icon(Icons.casino, size: 60, color: Colors.green),
+                  const SizedBox(height: 10),
+                  const Text(
+                    "LOTEAPP POS",
+                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.green),
                   ),
-                  const Text("Recordar contraseña"),
+                  const SizedBox(height: 25),
+                  TextField(
+                    controller: _usuarioController,
+                    decoration: const InputDecoration(
+                      labelText: "Usuario",
+                      prefixIcon: Icon(Icons.person),
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(labelText: "Contraseña", prefixIcon: Icon(Icons.lock), border: OutlineInputBorder()),
+                  ),
+                  const SizedBox(height: 25),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      onPressed: _cargando ? null : _iniciarSesion,
+                      child: _cargando
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text("Iniciar Sesión", style: TextStyle(fontSize: 16, color: Colors.white)),
+                    ),
+                  ),
                 ],
               ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                height: 45,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.lightBlue,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  ),
-                  onPressed: _iniciarSesion,
-                  child: const Text("Iniciar Sesión", style: TextStyle(fontSize: 16, color: Colors.white)),
-                ),
-              ),
-              const SizedBox(height: 40),
-              Text("2.0.0", style: TextStyle(color: Colors.grey[600])),
-              Text("Powered By Tecnolora", style: TextStyle(color: Colors.grey[600])),
-              Text("info@tecnolora.com", style: TextStyle(color: Colors.grey[600])),
-              Text("Serie: 70d680197ce8bb8a", style: TextStyle(color: Colors.grey[600])),
-              Text("Android: 13", style: TextStyle(color: Colors.grey[600])),
-            ],
+            ),
           ),
         ),
       ),

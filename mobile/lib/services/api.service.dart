@@ -2,40 +2,37 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  // En Codespaces/Localhost la URL base cambia según tu puerto expuesto
+  // Ajusta la URL base según el entorno de desarrollo
   static const String baseUrl = 'http://localhost:3000/api';
 
-  static Future<Map<String, dynamic>> crearTicket({
-    required List<String> loterias,
-    required List<Map<String, dynamic>> jugadas,
-    required int usuarioId,
-    required int sucursalId,
-  }) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/tickets/crear'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'usuario_id': usuarioId,
-        'sucursal_id': sucursalId,
-        'loterias': loterias,
-        'jugadas': jugadas,
-        'porcentaje_comision': 5.0,
-      }),
-    );
+  static Future<Map<String, dynamic>?> login(String usuario, String password) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'usuario': usuario, 'password': password}),
+      );
 
-    return jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
   }
 
-  static Future<Map<String, dynamic>> anularTicket(String ticketId) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/tickets/anular'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'ticketId': ticketId,
-        'usuario': {'permiso_anular': true},
-      }),
-    );
+  static Future<bool> registrarTicket(Map<String, dynamic> ticketData) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/tickets'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(ticketData),
+      );
 
-    return jsonDecode(response.body);
+      return response.statusCode == 200 || response.statusCode == 201;
+    } catch (e) {
+      return false;
+    }
   }
 }

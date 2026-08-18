@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'screens/login.screen.dart';
-import 'screens/ventas.screen.dart';
+import 'screen/login.screen.dart';
+import 'screen/ventas.screen.dart';
 
 void main() {
   runApp(const LoteApp());
 }
 
 class LoteApp extends StatelessWidget {
-  const LoteApp({Key? key}) : super(key: key);
+  const LoteApp({super.key});
 
   @override
   Widget build(BuildContext context) {

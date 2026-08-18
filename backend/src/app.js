@@ -13,6 +13,7 @@ app.get('/', (req, res) => {
 
 // Rutas de la API de Ventas y Tickets
 app.post('/api/tickets/crear', crearTicket);
+app.post('/api/tickets', crearTicket);
 app.post('/api/tickets/copiar', copiarTicket);
 app.post('/api/tickets/anular', anularTicket);
 app.post('/api/tickets/pagar', pagarTicket);

@@ -21,16 +21,21 @@ let contadorTicket = 21175;
 function crearTicket(req, res) {
     const { usuario_id, sucursal_id, loterias, jugadas, porcentaje_comision } = req.body;
 
-    if (!loterias || loterias.length === 0) {
+    if (!Array.isArray(loterias) || loterias.length === 0) {
         return res.status(400).json({ error: "Debe seleccionar al menos una lotería." });
     }
-    if (!jugadas || jugadas.length === 0) {
+    if (!Array.isArray(jugadas) || jugadas.length === 0) {
         return res.status(400).json({ error: "Debe agregar al menos una jugada." });
     }
 
-    let subtotalJugadas = jugadas.reduce((sum, j) => sum + parseFloat(j.monto), 0);
+    const montos = jugadas.map((jugada) => Number(jugada.monto));
+    if (montos.some((monto) => !Number.isFinite(monto) || monto <= 0)) {
+        return res.status(400).json({ error: "Todas las jugadas deben tener un monto positivo." });
+    }
+
+    const subtotalJugadas = montos.reduce((sum, monto) => sum + monto, 0);
     let montoTotal = subtotalJugadas * loterias.length;
-    let comisionCalculada = calcularComisionVenta(montoTotal, porcentaje_comision || 5);
+    let comisionCalculada = calcularComisionVenta(montoTotal, porcentaje_comision ?? 5);
 
     const nuevoTicket = {
         id: (contadorTicket++).toString(),

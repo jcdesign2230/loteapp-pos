@@ -5,7 +5,8 @@
  * @returns {number} Monto ganado por comisión.
  */
 function calcularComisionVenta(totalVenta, porcentajeComision) {
-    if (!totalVenta || totalVenta <= 0) return 0;
+    if (!Number.isFinite(totalVenta) || totalVenta <= 0) return 0;
+    if (!Number.isFinite(porcentajeComision) || porcentajeComision < 0) return 0;
     return parseFloat(((totalVenta * porcentajeComision) / 100).toFixed(2));
 }
 
